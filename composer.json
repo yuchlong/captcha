@@ -1,0 +1,19 @@
+{
+    "name": "yuchl/captcha",
+    "description": "captcha for PHP",
+    "type": "library",
+    "license": "MIT",
+	"authors": [
+        {
+            "name": "yuchlong",
+            "email": "1923427598@qq.com"
+        }
+    ],
+    "require": {
+        "php":">=5.4"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"captcha\\": "src/captcha"}
+    }
+}
