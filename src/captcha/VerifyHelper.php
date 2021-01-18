@@ -1,5 +1,5 @@
 <?php
-namespace common\components;
+namespace captcha;
 use Yii;
 
 class VerifyHelper {
