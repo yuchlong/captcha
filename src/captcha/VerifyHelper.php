@@ -74,20 +74,21 @@ class VerifyHelper {
      * @return bool 用户验证码是否正确
      */
     public function check($code, $id = '') {
-        $key = $this->authcode($this->seKey).$id;
+        $key = $this->authcode($this->seKey.strtoupper($code)).$id;
         // 验证码不能为空
-        $secode = Yii::$app->session[$key];
+        $secode = Yii::$app->redis->get($key);
+        $secode=unserialize($secode);
         if(empty($code) || empty($secode)) {
             return false;
         }
         // session 过期
         if(time() - $secode['verify_time'] > $this->expire) {
-            Yii::$app->session[$key]= null;
+            Yii::$app->redis->del($key);
             return false;
         }
 
         if($this->authcode(strtoupper($code)) == $secode['verify_code']) {
-            $this->reset && Yii::$app->session[$key]= null;
+            $this->reset &&  Yii::$app->redis->del($key);
             return true;
         }
 
@@ -159,12 +160,13 @@ class VerifyHelper {
         }
        
         // 保存验证码
-        $key        =   $this->authcode($this->seKey);
+        $key        =   $this->authcode($this->seKey.strtoupper(implode('', $code)));
         $code       =   $this->authcode(strtoupper(implode('', $code)));
         $secode     =   array();
         $secode['verify_code'] = $code; // 把校验码保存到session
         $secode['verify_time'] = time();  // 验证码创建时间
-        Yii::$app->session[$key.$id]=$secode;
+        $secode=serialize($secode);
+        Yii::$app->redis->setex($key.$id,$this->expire,$secode);
                         
         header('Cache-Control: private, max-age=0, no-store, no-cache, must-revalidate');
         header('Cache-Control: post-check=0, pre-check=0', false);		
